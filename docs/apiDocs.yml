@@ -1,0 +1,205 @@
+openapi: 3.0.4
+info:
+  title: e커머스 API 명세서
+  description: 항해 플러스 e커머스 api 명세서
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+tags:
+  - name: point
+    description: 잔액 충전 / 조회
+  - name: product
+    description: 상품 조회 / 인기 상품 조회
+  - name: order
+    description: 주문 / 결제
+paths:
+  /point/v1/{id}:
+    get:
+      tags:
+        - point
+      summary: 포인트 조회
+      description: 사용자의 포인트를 조회
+      operationId: getPointById
+      parameters:
+        - name: id
+          in: path
+          description: 사용자 ID 입력
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Point'
+        '400':
+          description: 잘 못된 ID
+        '404':
+          description: ID를 찾을 수 없음
+        default:
+          description: 일시적인 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /point/v1/charge:
+    post:
+      tags:
+        - point
+      summary: 포인트 충전
+      description: 사용자의 포인트를 충전
+      operationId: updatePointById
+      parameters:
+        - name: id
+          in: query
+          description: 사용자 ID 입력
+          required: true
+          schema:
+            type: string
+        - name: amount
+          in: query
+          description: 충전 금액 입력
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 충전 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Point'
+        '400':
+          description: 잘 못된 ID
+        '404':
+          description: ID를 찾을 수 없음
+        default:
+          description: 일시적인 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /product/v1/listOfProd :
+    get:
+      tags:
+        - product
+      summary: 상품 조회
+      description: 상품 목록을 조회
+      operationId : listOfProduct
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        default:
+          description: 일시적인 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /product/v1/listOfPopProd :
+    get:
+      tags:
+        - product
+      summary: 인기상품 조회
+      description: 인기상품 목록을 조회
+      operationId : listOfPopularProduct
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        default:
+          description: 일시적인 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /oredr/v1/orderPayment:
+    post:
+      tags:
+        - order
+      summary: 상품 주문/결제
+      description: 상품 목록 주문 및 결제
+      operationId : orderPayment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: 주문/결제 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        default:
+          description: 일시적인 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Point:
+      type: object
+      properties:
+        id:
+          type: string
+          example: userid
+        point:
+          type: integer
+          format: int64
+          example: 100000
+    Product:
+      type: object
+      properties:
+        prodId:
+          type: string
+          example: 25ID0001
+        prodName:
+          type: string
+          example: 상품이름1
+        prodPrice:
+          type: integer
+          format: int64
+          example: 5000
+        prodCount:
+          type: integer
+          format: int64
+          example: 200
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: string
+        payId:
+          type: string
+        payPrice:
+          type: integer
+          format: int64
+          example: 150000
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
